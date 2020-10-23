@@ -7,107 +7,82 @@ typedef struct _osoba* Pok;
 typedef struct _osoba {
 	char ime[30];
 	char prezime[30];
-	int dan, mj, god;
+	int god;
 	Pok next;
 } Osoba;
 
-int OsobaPoc(Pok, char, char, int, int, int);
-int OsobaKraj(Pok, char, char, int, int, int);
+int OsobaPoc(Pok, char*, char*, int);
+int OsobaKraj(Pok, char*, char*, int);
 int Ispis(Pok);
-int Brisanje(Pok, char);
-Pok Trazi(Pok, char);
-
+int Brisanje(Pok, char*);
+Pok Trazi(Pok, char*);
 Pok ZadnjiClan(Pok);
 
 int main()
 {
 	Osoba head;
 	Pok c = NULL;
-	
-	char ime[30], prezime[30];
-	int dan = 0, mj = 0, god = 0;
-
 	//RESETIRANJE HEADA NA OBIČNO
 	head.next = NULL;
 	strcpy(head.ime, "");
 	strcpy(head.prezime, "");
-	head.dan = 0;
-	head.mj = 0;
 	head.god = 0;
-	//
-	printf("Unesite osobu za pocetak liste: ");
-	scanf("%s %s %d %d %d", ime, prezime, &dan, &mj, &god);
-	
-	//
-	if (!OsobaPoc(&head, ime, prezime, dan, mj, god))
+
+	// -> UNOS PRVE OSOBE NA POCETAK
+	if (!OsobaPoc(&head, "Jakov", "Melvan", 20))
 	{
-		printf("Osoba uspjesno dodana.");
+		printf("Osoba Jakov Melvan uspjesno dodana na pocetak.");
 	}
 	else {
 		printf("Dogodila se greska kod dodavanja.");
 	}
 
-	getchar(); // ZASTITA
-
 	printf("\n");
-	printf("Unesite osobu za kraj liste: ");
 
-	scanf("%s %s %d %d %d", ime, prezime, &dan, &mj, &god);
-
-	if (!OsobaKraj(&head, ime, prezime, dan, mj, god))
+	// -> UNOS OSOBE NA KRAJ
+	if (!OsobaKraj(&head, "Ante", "Kuic", 19))
 	{
-		printf("Osoba uspjesno dodana.");
+		printf("Osoba Ante Kuic uspjesno dodana na kraj.");
 	}
 	else {
 		printf("Dogodila se greska kod dodavanja.");
 	}
 
-	getchar(); // ZASTITA
 	printf("\n");
 
-	printf("Unesite osobu za pocetak liste: ");
-	scanf("%s %s %d %d %d", ime, prezime, &dan, &mj, &god);
-
-	//
-	if (!OsobaPoc(&head, ime, prezime, dan, mj, god))
+	// -> UNOS OSOBE NA POCETAK
+	if (!OsobaPoc(&head, "Gojko", "Susak", 75))
 	{
-		printf("Osoba uspjesno dodana.");
+		printf("Osoba Gojko Susak uspjesno dodana na pocetak.");
 	}
 	else {
 		printf("Dogodila se greska kod dodavanja.");
 	}
 	printf("\n");
 
+	// -> ISPIS
 	if (Ispis(head.next) == -1) {
 		printf("Nema niti jednog clana.");
 	}
 
 	printf("\n");
 
-	getchar(); // ZASTITA
-
 	printf("Pretraga: ");
-	scanf("%s", prezime);
-	c = Trazi(head.next, prezime);
-	if (c != NULL)
+	// -> Trazenje po prezimenu
+	if ((c = Trazi(head.next, "Kuic")) != NULL)
 	{
-		printf("%s %s %d/%d/%d", c->ime, c->prezime, c->dan, c->mj, c->god);
+		printf("%s %s %d", c->ime, c->prezime, c->god);
 	}
 	else
 	{
 		printf("Nije pronaden niti jedan takav clan.");
 	}
 
-
-	getchar(); // zastita
-	
 	printf("\n");
 
-	printf("Brisanje: ");
+	printf("Brisanje osobe prezimena Susak: ");
 
-	scanf("%s", prezime);
-
-	if (Brisanje(&head, prezime) == -1)
+	if (Brisanje(&head, "Susak") == -1)
 	{
 		printf("Dogodila se pogreska, nismo pronasli clan.");
 	}
@@ -117,7 +92,7 @@ int main()
 	if (Ispis(head.next) == -1) {
 		printf("Nema niti jednog clana.");
 	}
-	getchar(); // ZASTITA
+
 	getchar();
 	return 0;
 }
@@ -154,7 +129,7 @@ Pok Trazi(Pok p, char prezime[]) // adresa prvog clana
 
 // DODAVANJA
 
-int OsobaPoc(Pok p, char ime[], char prezime[], int dan, int mj, int god) // 0 - tocno 1- warning -1= greska
+int OsobaPoc(Pok p, char ime[], char prezime[], int god) // 0 - tocno 1- warning -1= greska
 {
 	if (p != NULL)
 	{
@@ -169,8 +144,6 @@ int OsobaPoc(Pok p, char ime[], char prezime[], int dan, int mj, int god) // 0 -
 			strcpy(novi->ime, ime);
 			strcpy(novi->prezime, prezime);
 
-			novi->dan = dan;
-			novi->mj = mj;
 			novi->god = god;
 			return 0; // USPJESNO
 		} return -1;
@@ -178,7 +151,7 @@ int OsobaPoc(Pok p, char ime[], char prezime[], int dan, int mj, int god) // 0 -
 	return -1; // GRESKA
 }
 
-int OsobaKraj(Pok p, char ime[], char prezime[], int dan, int mj, int god) // 0 - tocno 1- warning -1= greska
+int OsobaKraj(Pok p, char ime[], char prezime[], int god) // 0 - tocno 1- warning -1= greska
 {
 	if (p != NULL)
 	{
@@ -195,8 +168,6 @@ int OsobaKraj(Pok p, char ime[], char prezime[], int dan, int mj, int god) // 0 
 			strcpy(novi->ime, ime);
 			strcpy(novi->prezime, prezime);
 
-			novi->dan = dan;
-			novi->mj = mj;
 			novi->god = god;
 
 			return 0; // USPJESNO
@@ -233,7 +204,7 @@ int Ispis(Pok p) // ADRESA PRVOG CLANA
 	{
 		while (p != NULL)
 		{
-			printf("%s %s %d/%d/%d\n", p->ime, p->prezime, p->dan, p->mj, p->god);
+			printf("%s %s %d\n", p->ime, p->prezime, p->god);
 			p = p->next;
 		}
 		return 0;
