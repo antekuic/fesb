@@ -2,11 +2,13 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define MAX_STRING 30
+
 typedef struct _osoba* Pok;
 
 typedef struct _osoba {
-	char ime[30];
-	char prezime[30];
+	char ime[MAX_STRING];
+	char prezime[MAX_STRING];
 	int god;
 	Pok next;
 } Osoba;
@@ -22,75 +24,121 @@ int main()
 {
 	Osoba head;
 	Pok c = NULL;
+	char optionValue;
+	char name[MAX_STRING], prezime[MAX_STRING];
+	int god = 0;
+	int ind = 0;
 	//RESETIRANJE HEADA NA OBIČNO
 	head.next = NULL;
 	strcpy(head.ime, "");
 	strcpy(head.prezime, "");
 	head.god = 0;
 
-	// -> UNOS PRVE OSOBE NA POCETAK
-	if (!OsobaPoc(&head, "Jakov", "Melvan", 20))
+	printf("Opcije: p - unos na pocetak\nk - unos na kraj\ni - ispis clanova\ne- izlazak iz programa \nUnesite opciju: ");
+
+	while ((optionValue = getchar()) && !ind)
 	{
-		printf("Osoba Jakov Melvan uspjesno dodana na pocetak.");
-	}
-	else {
-		printf("Dogodila se greska kod dodavanja.");
-	}
+		
+		switch (optionValue)
+		{
+			case 'p':
+			{
+				printf("\n");
+				printf("Unesite osobu za dodat na pocetak (ime prezime godine): ");
+				scanf("%s %s %d", name, prezime, &god);
+				getchar(); // zbog \n
+				printf("\n");
+				if (!OsobaPoc(&head, name, prezime, god))
+				{
+					printf("Osoba %s %s ( %d ) uspjesno dodana na pocetak.", name, prezime, god);
+				}
+				else {
+					printf("Dogodila se greska kod dodavanja.");
+				}
+				printf("\n\n");
+				printf("Unesite komandu: ");
+				ind = 0;
+				break;
+			}
+			case 'k': {
+				printf("\n");
+				printf("Unesite za dodat na kraj liste (ime prezime godine): ");
+				scanf("%s %s %d", name, prezime, &god);
+				getchar(); // zbog \n
+				printf("\n");
+				if (!OsobaKraj(&head, name, prezime, god))
+				{
+					printf("Osoba %s %s ( %d ) uspjesno dodana na kraj.", name, prezime, god);
+				}
+				else {
+					printf("Dogodila se greska kod dodavanja.");
+				}
+				printf("\n\n");
+				printf("Unesite komandu: ");
+				ind = 0;
+				break;
+			}
 
-	printf("\n");
+			case 'i': {
+				printf("\n");
+				getchar(); // ZASTITA
+				printf("ISPIS CLANOVA: \n");
+				if (Ispis(head.next) == -1) {
+					printf("Nema niti jednog clana.");
+				}
+				printf("\n\n");
+				printf("Unesite komandu: ");
+				ind = 0;
 
-	// -> UNOS OSOBE NA KRAJ
-	if (!OsobaKraj(&head, "Ante", "Kuic", 19))
-	{
-		printf("Osoba Ante Kuic uspjesno dodana na kraj.");
-	}
-	else {
-		printf("Dogodila se greska kod dodavanja.");
-	}
+				break;
 
-	printf("\n");
+			}
+			case 'f': {
+				printf("\n");
+				
+				printf("Pretraga ( prezime ): "); 
+				scanf("%s", prezime);
+				getchar(); // ZASTITA
+				// -> Trazenje po prezimenu
+				if ((c = Trazi(head.next, prezime)) != NULL)
+				{
+					printf("%s %s %d", c->ime, c->prezime, c->god);
+				}
+				else
+				{
+					printf("Nije pronaden niti jedan takav clan.");
+				}
+				printf("\n\n");
+				printf("Unesite komandu: ");
+				ind = 0;
 
-	// -> UNOS OSOBE NA POCETAK
-	if (!OsobaPoc(&head, "Gojko", "Susak", 75))
-	{
-		printf("Osoba Gojko Susak uspjesno dodana na pocetak.");
-	}
-	else {
-		printf("Dogodila se greska kod dodavanja.");
-	}
-	printf("\n");
+				break;
 
-	// -> ISPIS
-	if (Ispis(head.next) == -1) {
-		printf("Nema niti jednog clana.");
-	}
+			}
+			case 'b': {
+				printf("\n");
 
-	printf("\n");
+				printf("Brisanje ( prezime ): ");
+				scanf("%s", prezime);
+				getchar(); // ZASTITA
+				// -> Trazenje po prezimenu
+				if (Brisanje(&head, prezime) == (-1 || 1))
+				{
+					printf("Dogodila se pogreska, nismo pronasli clan.");
+				}
+				else {
+					printf("Uspjesno obrisana osoba prezimena %s", prezime);
+				}
 
-	printf("Pretraga: ");
-	// -> Trazenje po prezimenu
-	if ((c = Trazi(head.next, "Kuic")) != NULL)
-	{
-		printf("%s %s %d", c->ime, c->prezime, c->god);
-	}
-	else
-	{
-		printf("Nije pronaden niti jedan takav clan.");
-	}
+				printf("\n\n");
+				printf("Unesite komandu: ");
+				ind = 0;
 
-	printf("\n");
-
-	printf("Brisanje osobe prezimena Susak: ");
-
-	if (Brisanje(&head, "Susak") == -1)
-	{
-		printf("Dogodila se pogreska, nismo pronasli clan.");
-	}
-
-	printf("\n");
-
-	if (Ispis(head.next) == -1) {
-		printf("Nema niti jednog clana.");
+				break;
+			}
+			default: { ind = 1;  printf("\nIzlazak iz programa!\n");  break; };
+			}
+		printf("\n");
 	}
 
 	getchar();
@@ -186,13 +234,15 @@ int Brisanje(Pok p, char prezime[]) // ADRESA HEADA
 			c = p;
 			p = p->next;
 		}
+		if (p != NULL) {
+			// OVDJE JE P ADRESA CLANA KOJEG BRISEMO;
+			// c adresa prethodnog clana;
 
-		// OVDJE JE P ADRESA CLANA KOJEG BRISEMO;
-		// c adresa prethodnog clana;
-
-		c->next = p->next;
-		free(p);
-		return 0;
+			c->next = p->next;
+			free(p);
+			return 0;
+		}
+		return 1;
 	}
 	return -1;
 }
