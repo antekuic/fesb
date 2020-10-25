@@ -34,7 +34,7 @@ int main()
 	strcpy(head.prezime, "");
 	head.god = 0;
 
-	printf("Opcije: p - unos na pocetak\nk - unos na kraj\ni - ispis clanova\ne- izlazak iz programa \nUnesite opciju: ");
+	printf("Opcije: p - unos na pocetak\nk - unos na kraj\ni - ispis clanova\nf - pretraga po prezimenu\nb - brisanje po prezimenu\ne- izlazak iz programa \nUnesite opciju: ");
 
 	while ((optionValue = getchar()) && !ind)
 	{
