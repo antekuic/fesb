@@ -29,7 +29,10 @@ Pok ZadnjiClan(Pok);
 Pok TraziPret(Pok, char *);
 // ALGORITAM ZA SORTIRANJE
 int Sort(Pok);
-Pok Exchange(Pok p1, Pok p2, int *);
+Pok Exchange(Pok ,Pok , int *);
+//DATOTEKA
+int UpisDatoteka(Pok);
+int UcitavanjeDatoteka(Pok, char *);
 
 int main()
 {
@@ -48,7 +51,7 @@ int main()
 	head.god = 0;
 
 	printf("Opcije: p - unos na pocetak\nk - unos na kraj\ni - ispis clanova\nf - pretraga po prezimenu\nb - brisanje po prezimenu\ne- izlazak iz programa \n");
-	printf("a - unos iza odredenog clana\nz - unos prije odredenog clana\nUnesite opciju: ");
+	printf("a - unos iza odredenog clana\nz - unos prije odredenog clana\ns- Za sortiranje po prezimenu\nr-Za citanje iz datoteke\nw - za upisivanje u datoteku.\nUnesite opciju: ");
 
 	while ((optionValue = getchar()) && !ind)
 	{
@@ -191,9 +194,47 @@ int main()
 		}
 		case 's': {
 			getchar();
-			Sort(&head);
-			Ispis(head.next);
-
+			if (!Sort(&head)) {
+				if (Ispis(head.next) == -1) {
+					printf("Nema niti jednog clana.");
+				}
+			}
+			else {
+				printf("Dogodila se greska prilikom sortiranja.");
+			}
+			printf("\n\n");
+			printf("Unesite komandu: ");
+			ind = 0;
+			break;
+		}
+		case 'w': {
+			getchar();
+			printf("\n");
+			if (UpisDatoteka(head.next) == -1) {
+				printf("Dogodila se greska.");
+			}
+			else {
+				printf("Kreirana datoteka studnet-upis.txt.");
+			}
+			printf("\n\n");
+			printf("Unesite komandu: ");
+			ind = 0;
+			break;
+		}
+		case 'r': {
+			getchar();
+			printf("\n");
+			printf("Unesite ime datoteke iz koje zelite ucitati: (.txt) "); // DODAJE SE POSTOJECEM FOLDERU
+			scanf("%s", prezime);
+			getchar(); // ZASTITA
+			if (UcitavanjeDatoteka(&head, prezime) == -1) {
+				printf("Dogodila se greska.");
+			}
+			else {
+				printf("Podatci ucitani iz datoteteke %s.", prezime);
+			}
+			printf("\n\n");
+			printf("Unesite komandu: ");
 			ind = 0;
 			break;
 		}
@@ -437,14 +478,15 @@ int Sort(Pok p) { // ADRESA HEAD CLANA
 			p = p->next;
 			do {
 				swapt = 0;
-				p = Exchange(p, p->next, &swapt);
-				if (p == NULL) {
-					p = temp->next;
+				while (p->next != NULL) {
+					p = Exchange(p, p->next, &swapt);
 				}
+				p = temp->next;
 			} while (swapt);
+			return 0;
 		}
 		
-		
+		return -1;
 	} return -1;
 
 }
@@ -453,12 +495,10 @@ Pok Exchange(Pok p1, Pok p2, int *c) // razmjeni dvi adrese  i vrati onu koja je
 {
 	if (p1 != NULL && p2 != NULL)
 	{
-		Pok ret = NULL;
 		Pok temp = NULL;
 		if (strcmp(p1->prezime, p2->prezime) > 0) {
-			temp = p1->prev->next;
 			p1->prev->next = p2;
-			p2->prev = temp;
+			p2->prev = p1->prev;
 
 			p1->prev = p2;
 			temp = p2->next;
@@ -474,4 +514,48 @@ Pok Exchange(Pok p1, Pok p2, int *c) // razmjeni dvi adrese  i vrati onu koja je
 		else return p2;
 	}
 	else return p2;
+}
+
+// RAD S DATOTEKAMA
+
+int UpisDatoteka(Pok p) // prvi element 
+{
+	if (p != NULL)
+	{
+		FILE *f = NULL;
+		f = fopen("student-upis.txt", "w");
+		if (f != NULL) {
+			while (p != NULL) {
+				fprintf(f, "%s %s %d\n", p->ime, p->prezime, p->god);
+				p = p->next;
+			}
+			fclose(f);
+			return 0;
+		}
+		return -1;
+	}
+	return -1;
+}
+
+int UcitavanjeDatoteka(Pok p, char naziv[]) // adresa heada
+{
+	if (p != NULL)
+	{
+		FILE *f = NULL;
+		char ime[30], prezime[30];
+		int god = 0;
+		f = fopen(naziv, "r");
+		if (f != NULL) {
+			while (!feof(f)) {
+				fscanf(f, "%s %s %d", ime, prezime, &god);
+				if (OsobaKraj(p, ime, prezime, god) != 0) {
+					break;
+				}
+			}
+			fclose(f);
+			return 0;
+		}
+		return -1;
+	}
+	return -1;
 }
