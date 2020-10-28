@@ -40,7 +40,7 @@ int main()
 	int god = 0;
 	int ind = 0;
 	int a = 0;
-	//RESETIRANJE HEADA NA OBIÈNO
+	//RESETIRANJE HEADA NA OBIÄŒNO
 	head.next = NULL;
 	head.prev = NULL;
 	strcpy(head.ime, "");
