@@ -1,3 +1,5 @@
+#define _CRT_SECURE_NO_WARNINGS
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -29,7 +31,7 @@ Pok ZadnjiClan(Pok);
 Pok TraziPret(Pok, char *);
 // ALGORITAM ZA SORTIRANJE
 int Sort(Pok);
-Pok Exchange(Pok ,Pok , int *);
+Pok Exchange(Pok, Pok, int *);
 //DATOTEKA
 int UpisDatoteka(Pok);
 int UcitavanjeDatoteka(Pok, char *);
@@ -238,19 +240,18 @@ int main()
 			ind = 0;
 			break;
 		}
-		default: { ind = 1;  printf("\nIzlazak iz programa!\n"); 
-			
-			
+		default: { ind = 1;  printf("\nIzlazak iz programa!\n");
+
+
 
 			break; };
 		}
 		printf("\n");
 	}
 
-	
-	
+
+
 	free(c);
-	getchar();
 	return 0;
 }
 
@@ -341,7 +342,7 @@ int OsobaKraj(Pok p, char ime[], char prezime[], int god) // 0 - tocno 1- warnin
 			novi->next = c->next;
 			c->next = novi;
 			novi->prev = c;
-			
+
 
 			strcpy(novi->ime, ime);
 			strcpy(novi->prezime, prezime);
@@ -425,7 +426,7 @@ int UnosPrije(Pok p, char sur[]) { // adresa heada
 			if (!OsobaKraj(p, ime, prezime, god)) return 1; // WARNING DODAN JE NA KRAJ
 			else return -1;
 		}
-		
+
 	}
 	return -1;
 }
@@ -445,7 +446,8 @@ int Brisanje(Pok p, char prezime[]) // ADRESA HEADA
 			// OVDJE JE P ADRESA CLANA KOJEG BRISEMO;
 			// c adresa prethodnog clana;
 
-			c->next = p->next;
+			c->next = p->next; 
+			p->next->prev = c;
 			free(p);
 			return 0;
 		}
@@ -485,7 +487,7 @@ int Sort(Pok p) { // ADRESA HEAD CLANA
 			} while (swapt);
 			return 0;
 		}
-		
+
 		return -1;
 	} return -1;
 
