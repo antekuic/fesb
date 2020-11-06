@@ -2,8 +2,9 @@
 
 /*
 MAIN HEAD -> HEAD1 -> HEAD2 -> .... (head)
-				|		|
-			 lista1	  lista2 ..... (Polinom)
+		|		|
+		lista1	  lista2 ..... (Polinom)
+		
 
 */
 
@@ -17,6 +18,7 @@ typedef struct _Polinom* PolPok;
 typedef struct _Polinom {
 	int broj; // ->koeficijent
 	int eksponent; // -> eksponent
+	int ind;
 	PolPok next;
 	PolPok next_array;
 } Polinom;
@@ -32,7 +34,7 @@ int Ispis(PolPok);
 int Ispis_l(PolPok);
 int DodajPolinom_l(PolPok, int, int);
 int DeleteArrays(PolPok);
-int DeleteList(PolPok, PolPok);
+int DeleteList(PolPok);
 
 int main() {
 	PolPok c = NULL, rez_z = NULL;
@@ -45,7 +47,6 @@ int main() {
 		switch (opcija) {
 		case 0: 
 			// DODATI BRISANJE c-ova ovdje;
-			DeleteArrays(c);
 			c = loadingData();
 			if (c != NULL) {
 				printf("Polinomi ucitani iz datoteke.");
@@ -53,10 +54,10 @@ int main() {
 			break;
 		case 1:
 			// DODATI I BRISANJE rez_z ovdje
-			DeleteList(rez_z, rez_z);
 			if ((rez_z = PomnoziPolinome(c)) != NULL) {
 				printf("\n");
 				Ispis_l(rez_z);
+				DeleteArrays(c); // IZBRISI UMNOZENE POLINOME
 			}
 			else {
 				printf("Dogodila se greska");
@@ -65,10 +66,10 @@ int main() {
 		case 2: 
 
 			// DODATI I BRISANJE rez_z ovdje
-			DeleteList(rez_z, rez_z);
 			if ((rez_z = ZbrojiPolinome(c)) != NULL) {
 				printf("\n");
 				Ispis_l(rez_z);
+				DeleteList(rez_z);
 			}
 			else {
 				printf("Dogodila se greska");
@@ -88,8 +89,23 @@ int main() {
 
 		printf("\nUnesite opciju: ");
 	}
-
+	
+	DeleteAll(c);
 	system("pause");
+	return 0;
+}
+
+int DeleteArrays(PolPok mainHead) {
+	PolPok pom = NULL;
+	while (mainHead != NULL && mainHead->next_array != NULL) {
+		pom = mainHead->next_array;
+		if (pom->ind == 1) {
+			mainHead->next_array = pom->next_array;
+			DeleteList(pom);
+			free(pom);
+		}
+		mainHead = mainHead->next_array;
+	}
 	return 0;
 }
 
@@ -327,80 +343,68 @@ int DodajPolinom_l(PolPok head, int exp, int broj) {
 
 PolPok PomnoziPolinome(PolPok mainHead) {
 
-	// JOS DODAT BRISANJE...
-	if (mainHead != NULL)
-	{
-		PolPok p = mainHead;
-		PolPok p1 = NULL;
-		PolPok p2 = NULL;
-		PolPok head = NULL;
-		PolPok pom = NULL;
-		PolPok pomSuma = NULL;
+	if (mainHead != NULL && mainHead->next_array != NULL) {
+		PolPok p = mainHead->next_array;
+		PolPok q = NULL;
+		PolPok new = (PolPok)malloc(sizeof(Polinom));
+		PolPok pom1 = NULL, pom2 = NULL, pom = NULL;
 		int ind = 0;
-		head = (PolPok)malloc(sizeof(Polinom));
-		if (head != NULL) {
-			head->next = NULL;
-			p = p->next_array;
-			while(p->next_array != NULL)
-			{
-				if (ind) {
-					p = head;
-					pomSuma = head; // ZA OBRISAT
-					head = (PolPok)malloc(sizeof(Polinom));
-					head->next = NULL;
-				}
-				for (p1 = p->next; p1 != NULL; p1 = p1->next) // KROZ LISTU
-				{	
-					if (p->next_array != NULL)
-					{
-						for (p2 = p->next_array->next; p2 != NULL; p2 = p2->next) // KROZ DRUGU LISTU
-						{
-								DodajPolinom_l(head, p2->eksponent + p1->eksponent, (p2->broj)*(p1->broj));
-						}
-					}
+		new->next = NULL;
+		if (p->next_array == NULL) return p;
+		while ((q = p->next_array) != NULL) {
+			if (ind) {
+				new = (PolPok)malloc(sizeof(Polinom));
+				new->next = NULL;
+			}
+			pom1 = p;
+			pom2 = q;
+			while (p->next != NULL) {
+				p = p->next;
+				while (q->next != NULL) {
+					q = q->next;
+					DodajPolinom_l(new, q->eksponent + p->eksponent, (q->broj)*(p->broj));
 					ind = 1;
 				}
-				
-				// DODATI SUMU IZA Next_ARRAYA
-				if (p->next_array != NULL)
-				{
-
-					pom = p->next_array->next_array;
-					p->next_array->next_array = head;
-					head->next_array = pom;
-					p = head;
-					
-					
-				}
-				
-
+				q = pom2;
 			}
-		}
-		return head;
+			p = pom1;
 
+			pom = pom2->next_array;
+			pom2->next_array = new;
+			new->next_array = pom;
+			new->ind = 1;
+			p = new;
+		}
+		return new;
 	}
 	return NULL;
 }
 
-int DeleteList(PolPok head, PolPok head2) {
-	if (head == NULL) return 0;
-	DeleteList(head->next, head2);
-	if (head != head2) {
-		free(head);
+int DeleteList(PolPok head) {
+	if (head != NULL)
+	{
+		PolPok temp = NULL;
+		PolPok temp2 = head;
+		temp2 = temp2->next;
+		while (temp2 != NULL) {
+			temp = temp2;
+			temp2 = temp2->next;
+			free(temp);
+		}
+		return 0;
 	}
-	return 0;
+	return -1;
+
 }
 
-int DeleteArrays(PolPok head) {
-	PolPok pomocni = NULL;
-	if (head != NULL && head->next != NULL)
-	{
-		while (head != NULL)
-		{
-			DeleteList(head, head);
-			head = head->next;
-
-		}
+int DeleteAll(PolPok mainHead) {
+	PolPok pom = NULL;
+	while (mainHead != NULL && mainHead->next_array != NULL) {
+		pom = mainHead->next_array;
+		mainHead->next_array = pom->next_array;
+		DeleteList(pom);
+		free(pom);
+		mainHead = mainHead->next_array;
 	}
 	return 0;
 }
