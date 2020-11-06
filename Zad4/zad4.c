@@ -31,18 +31,21 @@ PolPok PomnoziPolinome(PolPok);
 int Ispis(PolPok);
 int Ispis_l(PolPok);
 int DodajPolinom_l(PolPok, int, int);
+int DeleteArrays(PolPok);
+int DeleteList(PolPok, PolPok);
 
 int main() {
 	PolPok c = NULL, rez_z = NULL;
 	int ind = 0, opcija = 0;
 	printf("Unesite opciju: \n"
-		"0- Ucitavanje iz datoteke\n1 - Mnozenje polinoma\n2 - Zbrajanje polinoma\n3 - Ispis trenutno ucitane\n"
+		"0- Ucitavanje iz datoteke\n1 - Mnozenje polinoma\n2 - Zbrajanje polinoma\n3 - Ispis trenutno stanje\n"
 	"Opcija: ");
 	while (!ind) {
 		scanf("%d", &opcija);
 		switch (opcija) {
 		case 0: 
 			// DODATI BRISANJE c-ova ovdje;
+			DeleteArrays(c);
 			c = loadingData();
 			if (c != NULL) {
 				printf("Polinomi ucitani iz datoteke.");
@@ -50,6 +53,7 @@ int main() {
 			break;
 		case 1:
 			// DODATI I BRISANJE rez_z ovdje
+			DeleteList(rez_z, rez_z);
 			if ((rez_z = PomnoziPolinome(c)) != NULL) {
 				printf("\n");
 				Ispis_l(rez_z);
@@ -61,6 +65,7 @@ int main() {
 		case 2: 
 
 			// DODATI I BRISANJE rez_z ovdje
+			DeleteList(rez_z, rez_z);
 			if ((rez_z = ZbrojiPolinome(c)) != NULL) {
 				printf("\n");
 				Ispis_l(rez_z);
@@ -330,31 +335,44 @@ PolPok PomnoziPolinome(PolPok mainHead) {
 		PolPok p2 = NULL;
 		PolPok head = NULL;
 		PolPok pom = NULL;
+		PolPok pomSuma = NULL;
+		int ind = 0;
 		head = (PolPok)malloc(sizeof(Polinom));
 		if (head != NULL) {
 			head->next = NULL;
 			p = p->next_array;
 			while(p->next_array != NULL)
 			{
+				if (ind) {
+					p = head;
+					pomSuma = head; // ZA OBRISAT
+					head = (PolPok)malloc(sizeof(Polinom));
+					head->next = NULL;
+				}
 				for (p1 = p->next; p1 != NULL; p1 = p1->next) // KROZ LISTU
-				{
+				{	
 					if (p->next_array != NULL)
 					{
 						for (p2 = p->next_array->next; p2 != NULL; p2 = p2->next) // KROZ DRUGU LISTU
 						{
-							DodajPolinom_l(head, p2->eksponent + p1->eksponent, (p2->broj)*(p1->broj));
+								DodajPolinom_l(head, p2->eksponent + p1->eksponent, (p2->broj)*(p1->broj));
 						}
 					}
+					ind = 1;
 				}
+				
 				// DODATI SUMU IZA Next_ARRAYA
 				if (p->next_array != NULL)
 				{
+
 					pom = p->next_array->next_array;
 					p->next_array->next_array = head;
 					head->next_array = pom;
 					p = head;
+					
+					
 				}
-
+				
 
 			}
 		}
@@ -362,4 +380,27 @@ PolPok PomnoziPolinome(PolPok mainHead) {
 
 	}
 	return NULL;
+}
+
+int DeleteList(PolPok head, PolPok head2) {
+	if (head == NULL) return 0;
+	DeleteList(head->next, head2);
+	if (head != head2) {
+		free(head);
+	}
+	return 0;
+}
+
+int DeleteArrays(PolPok head) {
+	PolPok pomocni = NULL;
+	if (head != NULL && head->next != NULL)
+	{
+		while (head != NULL)
+		{
+			DeleteList(head, head);
+			head = head->next;
+
+		}
+	}
+	return 0;
 }
