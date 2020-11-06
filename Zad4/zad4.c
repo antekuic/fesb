@@ -5,6 +5,12 @@ MAIN HEAD -> HEAD1 -> HEAD2 -> .... (head)
 				|		|
 			 lista1	  lista2 ..... (Polinom)
 
+ PRIMJER FILEA:
+6x^2 +4x
+3x
+6x +4x^2
+3x +4x^5
+
 */
 
 #include <stdio.h>
@@ -34,6 +40,7 @@ int Ispis_l(PolPok);
 int DodajPolinom_l(PolPok, int, int);
 int DeleteArrays(PolPok);
 int DeleteList(PolPok);
+int DeleteAll(PolPok);
 
 int main() {
 	PolPok c = NULL, rez_z = NULL;
@@ -147,12 +154,12 @@ PolPok loadingData() {
 	return main;
 }
 
-PolPok createPolynomList(char *buffer) { /* OBLIK PRIMJERA 22x^3 */
+PolPok createPolynomList(char *data) { /* OBLIK PRIMJERA 22x^3 */
 
 	PolPok main = NULL; // -> MAIN HEAD ZA LISTU
-	int temp[3] = { 0, 0, 1 }; // 0 -> broj 1 -> exp 2->predznak
-	int mod = 0; // 0 -> brojevi 1 -> exponent
-	int ind = 0;
+	int polinom[2] = { 0 }; // 0 -> broj 1 -> exp 2->predznak
+	int ind = 0, ind2 = 0;
+	int n, offset;
 
 	main = (PolPok)malloc(sizeof(Polinom));
 	if (main == NULL) {
@@ -160,49 +167,43 @@ PolPok createPolynomList(char *buffer) { /* OBLIK PRIMJERA 22x^3 */
 	}
 	main->next = NULL;
 
-	for (int i = 0; buffer[i] != '\n' && buffer[i] != '\0'; i++)
+	while (sscanf(data, "%d%n%*[^\n]%*[^\0]", &n, &offset) == 1)
 	{
-		switch (buffer[i])
+
+		data += offset;
+		if (data[0] == 'x' && data[1] == '^')
 		{
-			case '+': 
-				// RESETIRAJ VARIJABLE
-				DodajPolinom(main, temp);
-				mod = 0;
-				temp[0] = 0;
-				temp[1] = 0;
-				temp[2] = 1;
-
-				break;
-			case '-': 
-				mod = 0;
-				DodajPolinom(main, temp);
-				temp[0] = 0;
-				temp[1] = 0;
-				temp[2] = -1;
-				break;
-			case 'x':
-				temp[1] = 1; // ne treba ^ ako je exp 1
-				mod = 0;
-				break;
-			case '^':
-				mod = 1;
-				temp[1] = 0;
-				break;
-			default: // BROJEVI
-				if (isdigit(buffer[i])) {
-					if (!mod) {
-						temp[0] = temp[0] * 10 + (buffer[i] - '0');
-					}
-					else {
-						temp[1] = temp[1] * 10 + (buffer[i] - '0');
-					}
-				}
-				break;
+			// NEKA DRUGA POTENCIJA
+			data += 2;
+			polinom[0] = n;
+			ind = 1;
+			ind2 = 1;
 		}
-
-		
+		else if (data[0] == 'x' && data[1] != '^')
+		{
+			// PODETNCIJA 1
+			polinom[0] = n;
+			polinom[1] = 1;
+			data++;
+		}
+		else {
+			// OBICAN BROJ
+			if (ind) {
+				ind = 0;
+				polinom[1] = n;
+				ind2 = 0;
+			}
+			else {
+				polinom[0] = n;
+				polinom[1] = 0;
+			}
+		}
+		if (!ind2) {
+			printf("%d %d\n", polinom[0], polinom[1]);
+			DodajPolinom(main, polinom);
+			// NOVI ELEMENT
+		}
 	}
-	DodajPolinom(main, temp);
 	printf("\n");
 
 	return main;
@@ -224,13 +225,13 @@ int DodajPolinom(PolPok head, int values[]) { // HEAD SADRZAVA VRIJEDNOST POCETK
 
 			if (p1 != NULL && p1->eksponent == values[1])
 			{
-				p1->broj += values[0] * values[2];
+				p1->broj += values[0];
 				return 0;
 			}
 
 			p = (PolPok)malloc(sizeof(Polinom));
 			if (p == NULL) return -1;
-			p->broj = values[0] * values[2];
+			p->broj = values[0];
 			p->eksponent = values[1];
 
 			pom2 = p1->next;
