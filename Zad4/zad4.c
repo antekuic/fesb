@@ -25,36 +25,52 @@ typedef struct _Polinom {
 
 PolPok loadingData(); // SORTIRANO UCITAVANJE IZ DATOTEKE -> VRACA ADRESU MAIN HEADA
 PolPok createPolynomList(char *); // VRACA ADRESU HEAD CLANA
-int addPolynom(PolPok, int []);
+int DodajPolinom(PolPok, int []);
 PolPok ZbrojiPolinome(PolPok); // VRACA ADRESU HEADA OD REZULTATA ZBRAJANJA
+PolPok PomnoziPolinome(PolPok);
 int Ispis(PolPok);
+int Ispis_l(PolPok);
+int DodajPolinom_l(PolPok, int, int);
 
 int main() {
 	PolPok c = NULL, rez_z = NULL;
 	int ind = 0, opcija = 0;
 	printf("Unesite opciju: \n"
-		"1- Ucitavanje iz datoteke\n2 - Mnozenje polinoma\n3 - Zbrajanje polinoma\n4 - Ispis trenutni\n"
+		"0- Ucitavanje iz datoteke\n1 - Mnozenje polinoma\n2 - Zbrajanje polinoma\n3 - Ispis trenutno ucitane\n"
 	"Opcija: ");
 	while (!ind) {
-		scanf(" %d", &opcija);
+		scanf("%d", &opcija);
 		switch (opcija) {
-		case 1: // ASCII 1
+		case 0: 
+			// DODATI BRISANJE c-ova ovdje;
 			c = loadingData();
 			if (c != NULL) {
 				printf("Polinomi ucitani iz datoteke.");
 			}
 			break;
-		case 3: 
-
+		case 1:
 			// DODATI I BRISANJE rez_z ovdje
-			if ((rez_z = ZbrojiPolinome(c)) != NULL) {
-				printf("Polinomi uspjesno zbrojeni");
+			if ((rez_z = PomnoziPolinome(c)) != NULL) {
+				printf("\n");
+				Ispis_l(rez_z);
 			}
 			else {
 				printf("Dogodila se greska");
 			}
 			break;
-		case 4: 
+		case 2: 
+
+			// DODATI I BRISANJE rez_z ovdje
+			if ((rez_z = ZbrojiPolinome(c)) != NULL) {
+				printf("\n");
+				Ispis_l(rez_z);
+			}
+			else {
+				printf("Dogodila se greska");
+			}
+			break;
+		case 3: 
+			printf("\n");
 			if (Ispis(c) == -1) {
 				printf("Nema se sto ispisati");
 			}
@@ -126,7 +142,7 @@ PolPok createPolynomList(char *buffer) { /* OBLIK PRIMJERA 22x^3 */
 		{
 			case '+': 
 				// RESETIRAJ VARIJABLE
-				addPolynom(main, temp);
+				DodajPolinom(main, temp);
 				mod = 0;
 				temp[0] = 0;
 				temp[1] = 0;
@@ -135,7 +151,7 @@ PolPok createPolynomList(char *buffer) { /* OBLIK PRIMJERA 22x^3 */
 				break;
 			case '-': 
 				mod = 0;
-				addPolynom(main, temp);
+				DodajPolinom(main, temp);
 				temp[0] = 0;
 				temp[1] = 0;
 				temp[2] = -1;
@@ -162,13 +178,13 @@ PolPok createPolynomList(char *buffer) { /* OBLIK PRIMJERA 22x^3 */
 
 		
 	}
-	addPolynom(main, temp);
+	DodajPolinom(main, temp);
 	printf("\n");
 
 	return main;
 }
 
-int addPolynom(PolPok head, int values[]) { // HEAD SADRZAVA VRIJEDNOST POCETKA LISTE
+int DodajPolinom(PolPok head, int values[]) { // HEAD SADRZAVA VRIJEDNOST POCETKA LISTE
 	if (values[0] != 0)
 	{
 		if (head != NULL) {
@@ -227,6 +243,23 @@ int Ispis(PolPok head) {
 	return -1;
 }
 
+int Ispis_l(PolPok head) {
+	if (head != NULL)
+	{
+		PolPok p = NULL;
+		for (p = head->next; p != NULL; p = p->next) {
+			if (p->broj > 0) printf("+");
+			printf("%d", p->broj);
+			if (p->eksponent > 0)
+			{
+				printf("x^%d", p->eksponent);
+			}
+			printf(" ");
+		}
+	}
+	return -1;
+}
+
 PolPok ZbrojiPolinome(PolPok c) {
 	if (c != NULL) {
 		PolPok Novi = NULL;
@@ -234,34 +267,15 @@ PolPok ZbrojiPolinome(PolPok c) {
 		PolPok p = NULL;
 		PolPok p_s = NULL;
 		PolPok pom = NULL;
-		int ind = 0;
 		Novi = (PolPok)malloc(sizeof(Polinom));
-		Novi->next = NULL;
+		
 		if (Novi != NULL)
 		{
+			Novi->next = NULL;
 			for (p = c->next_array; p != NULL; p = p->next_array)
 			{
 				for (p_s = p->next; p_s != NULL; p_s = p_s->next) {
-					for (NoviEl = Novi->next; NoviEl != NULL; NoviEl = NoviEl->next) // PROVJERIT JE LI POSTOJI VEC NEKI ELEMENT
-					{
-						if (NoviEl->eksponent == p_s->eksponent)
-						{
-							NoviEl->broj += p_s->broj;
-							ind = 1;
-						}
-					}
-					if (!ind) { // TREBA STVORIT NOVI ELEMENT
-						NoviEl = (PolPok)malloc(sizeof(Polinom));
-						if (NoviEl != NULL) {
-							NoviEl->eksponent = p_s->eksponent;
-							NoviEl->broj = p_s->broj;
-							pom = Novi->next;
-							Novi->next = NoviEl;
-							NoviEl->next = pom;
-						}
-					}
-					ind = 0;
-
+					DodajPolinom_l(Novi, p_s->eksponent, p_s->broj); // SORTIRANO DODAVANJE
 				}
 			}
 		}
@@ -270,3 +284,82 @@ PolPok ZbrojiPolinome(PolPok c) {
 	return NULL;
 }
 
+int DodajPolinom_l(PolPok head, int exp, int broj) {
+	if (head != NULL) {
+		PolPok NoviEl = NULL;
+		PolPok pom = NULL;
+		PolPok p = head;
+		int ind = 0;
+		while (p->next != NULL) {
+			if (p->next->eksponent <= exp)
+			{
+				if (p->next->eksponent == exp) {
+					ind = 1;
+					pom = p->next;
+				}
+				break;
+			}
+			p = p->next;
+		}
+
+		if(ind)
+		{
+			pom->broj += broj;
+		}
+		else {
+			NoviEl = (PolPok)malloc(sizeof(Polinom));
+			NoviEl->broj = broj;
+			NoviEl->eksponent = exp;
+
+			pom = p->next;
+			p->next = NoviEl;
+			NoviEl->next = pom;
+		}
+		return 0;
+	}
+	return -1;
+}
+
+PolPok PomnoziPolinome(PolPok mainHead) {
+
+	// JOS DODAT BRISANJE...
+	if (mainHead != NULL)
+	{
+		PolPok p = mainHead;
+		PolPok p1 = NULL;
+		PolPok p2 = NULL;
+		PolPok head = NULL;
+		PolPok pom = NULL;
+		head = (PolPok)malloc(sizeof(Polinom));
+		if (head != NULL) {
+			head->next = NULL;
+			p = p->next_array;
+			while(p->next_array != NULL)
+			{
+				for (p1 = p->next; p1 != NULL; p1 = p1->next) // KROZ LISTU
+				{
+					if (p->next_array != NULL)
+					{
+						for (p2 = p->next_array->next; p2 != NULL; p2 = p2->next) // KROZ DRUGU LISTU
+						{
+							DodajPolinom_l(head, p2->eksponent + p1->eksponent, (p2->broj)*(p1->broj));
+						}
+					}
+				}
+				// DODATI SUMU IZA Next_ARRAYA
+				if (p->next_array != NULL)
+				{
+					pom = p->next_array->next_array;
+					p->next_array->next_array = head;
+					head->next_array = pom;
+					p = head;
+				}
+
+
+			}
+		}
+		return head;
+
+	}
+	return NULL;
+}
