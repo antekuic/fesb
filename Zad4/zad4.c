@@ -2,9 +2,8 @@
 
 /*
 MAIN HEAD -> HEAD1 -> HEAD2 -> .... (head)
-		|		|
-		lista1	  lista2 ..... (Polinom)
-		
+				|		|
+			 lista1	  lista2 ..... (Polinom)
 
 */
 
@@ -47,6 +46,10 @@ int main() {
 		switch (opcija) {
 		case 0: 
 			// DODATI BRISANJE c-ova ovdje;
+			if (c != NULL && c->next_array != NULL) {
+				DeleteAll(c); // OBRISI SVE
+			}
+
 			c = loadingData();
 			if (c != NULL) {
 				printf("Polinomi ucitani iz datoteke.");
@@ -90,7 +93,7 @@ int main() {
 		printf("\nUnesite opciju: ");
 	}
 	
-	DeleteAll(c);
+	DeleteAll(c); // OBRISI SVE
 	system("pause");
 	return 0;
 }
@@ -186,7 +189,7 @@ PolPok createPolynomList(char *buffer) { /* OBLIK PRIMJERA 22x^3 */
 				temp[1] = 0;
 				break;
 			default: // BROJEVI
-				if (buffer[i] >= 48 && buffer[i] <= 57) {
+				if (isdigit(buffer[i])) {
 					if (!mod) {
 						temp[0] = temp[0] * 10 + (buffer[i] - '0');
 					}
@@ -402,8 +405,8 @@ int DeleteAll(PolPok mainHead) {
 	while (mainHead != NULL && mainHead->next_array != NULL) {
 		pom = mainHead->next_array;
 		mainHead->next_array = pom->next_array;
-		DeleteList(pom);
-		free(pom);
+		DeleteList(pom); // BRISE LISTU
+		free(pom); // BRISI HEAD OD LISTE
 		mainHead = mainHead->next_array;
 	}
 	return 0;
