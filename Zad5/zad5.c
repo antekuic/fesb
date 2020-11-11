@@ -141,6 +141,7 @@ int loadData(HeadP main_head, ListaP lookup[]) {
 				if (feof(f)) break;
 			}
 		}
+		fclose(f);
 		return 0;
 	}
 	return -1;
