@@ -6,8 +6,8 @@
 Presjek i unija
 
 MAINHEAD -> RED -> RED -> RED
-			|		|	   |
-		Elementi Elementi Elementi
+	     |	    |	   |
+	Elementi Elementi Elementi
 
 LookUP Tablica: Adrese head-a od elementa.
 */
