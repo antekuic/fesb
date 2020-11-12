@@ -237,9 +237,8 @@ ListaP Presjek(ListaP l1, ListaP l2)
 
 		head->next = NULL;
 
-		while (1) // SORTIRANI SU
+		while (l1 != NULL && l2 != NULL) // SORTIRANI SU
 		{
-			if (l1 != NULL && l2 != NULL) {
 				if (l1->el > l2->el)
 				{
 					l2 = l2->next;
@@ -253,10 +252,6 @@ ListaP Presjek(ListaP l1, ListaP l2)
 					l2 = l2->next;
 					l1 = l1->next;
 				}
-			}
-			else {
-				break;
-			}
 		}
 
 		return head;
