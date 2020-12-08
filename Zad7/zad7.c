@@ -134,7 +134,6 @@ int AddToInFix(Pok InFix, char *buffer)
 	{
 		int br = 0,
 			offset = 0,
-			offset2 = 0,
 			i = 0;
 
 		while (sscanf(buffer, "%d%n%*[^\n]", &br, &offset) == 1)
