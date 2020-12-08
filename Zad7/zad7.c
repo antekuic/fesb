@@ -29,8 +29,9 @@ int DeleteAll(Pok);
 int Suma(Pok);
 int PushTwo(Pok head, int el);
 int popTwo(Pok head);
-
+int IsSymbol(char);
 int ManageOperation(char, int, int);
+
 int main() {
 
 	int opcija = 1;
@@ -55,43 +56,43 @@ int main() {
 
 		scanf("%d", &opcija);
 		switch (opcija) {
-			case 1: // Ucitavanje
-			{
-				/* BRISANJE PRIJE UCITAVANJA*/
-				DeleteAll(PostFix);
-				DeleteAll(InFix);
-				LoadData(InFix, PostFix);
-				break;
-			}
-			case 2: // ISPIS INFIX
-			{
-				printf("\nInFix izraz: ");
-				Ispis(InFix);
-				printf("\n");
-				break;
-			}
-			case 3: {
-				printf("\nPostFix izraz: ");
-				Ispis(PostFix);
-				printf("\n");
-				break;
+		case 1: // Ucitavanje
+		{
+			/* BRISANJE PRIJE UCITAVANJA*/
+			DeleteAll(PostFix);
+			DeleteAll(InFix);
+			LoadData(InFix, PostFix);
+			break;
+		}
+		case 2: // ISPIS INFIX
+		{
+			printf("\nInFix izraz: ");
+			Ispis(InFix);
+			printf("\n");
+			break;
+		}
+		case 3: {
+			printf("\nPostFix izraz: ");
+			Ispis(PostFix);
+			printf("\n");
+			break;
 
+		}
+		case 4: {
+			// SUMA
+			if (PostFix->next == NULL) {
+				printf("\nNista nije uneseno.");
 			}
-			case 4: {
-				// SUMA
-				if (PostFix->next == NULL) {
-					printf("\nNista nije uneseno.");
-				}
-				else {
-					printf("\nSuma unesenog izraza je %d", Suma(PostFix));
-				}
-				break;
+			else {
+				printf("\nSuma unesenog izraza je %d", Suma(PostFix));
 			}
-			default:
-			{
-				printf("\nSvi podaci izbrisani. Program ugasen!!!");
-				break;
-			}
+			break;
+		}
+		default:
+		{
+			printf("\nSvi podaci izbrisani. Program ugasen!!!");
+			break;
+		}
 		}
 		printf("\n\n");
 	}
@@ -131,14 +132,33 @@ int AddToInFix(Pok InFix, char *buffer)
 {
 	if (InFix != NULL)
 	{
-		int i = 0;
-		while(buffer[i] != '\n' && buffer[i] != '\0') {
+		int br = 0,
+			offset = 0,
+			offset2 = 0,
+			i = 0;
 
+		while (sscanf(buffer, "%d%n%*[^\n]", &br, &offset) == 1)
+		{
+			buffer += offset;
 			InFix->next = (Pok)malloc(sizeof(Head));
 			InFix = InFix->next;
-			InFix->El = buffer[i];
+			InFix->br = br;
+			InFix->El = '\0';
 			InFix->next = NULL;
-			i++;
+			i = 0;
+			while (buffer[i] != '\0' && !isdigit(buffer[i]))
+			{
+				if (IsSymbol(buffer[i]))
+				{
+					InFix->next = (Pok)malloc(sizeof(Head));
+					InFix = InFix->next;
+					InFix->El = buffer[i];
+					InFix->next = NULL;
+				}
+				i++;
+			}
+			buffer += i;
+
 		}
 		return 0;
 	}
@@ -155,19 +175,14 @@ int ConvertToPost(Pok InFix, Pok PostFix) {
 	while (InFix->next != NULL)
 	{
 		InFix = InFix->next;
-		if (isdigit(InFix->El))
+		if (InFix->El == '\0')
 		{
 			// BROJEVI
 			PostFix->next = (Pok)malloc(sizeof(Head));
 			PostFix = PostFix->next;
-			
+
 			PostFix->El = '\0';
-			PostFix->br = InFix->El - '0';
-			while (InFix->next != NULL && isdigit(InFix->next->El))
-			{
-				InFix = InFix->next;
-				PostFix->br = (PostFix->br) * 10 + (InFix->El - '0');
-			}
+			PostFix->br = InFix->br;
 			PostFix->next = NULL;
 		}
 		else {
@@ -175,7 +190,7 @@ int ConvertToPost(Pok InFix, Pok PostFix) {
 			if (stog->next != NULL)
 			{
 				// NIJE PRAZAN
-				
+
 				while (stog->next != NULL && (ind = Provjera(InFix->El, stog->next->El)) != 0)
 				{
 
@@ -259,7 +274,7 @@ int Ispis(Pok Lista)
 	}
 	return 0;
 }
- /* STOG OPERACIJE */
+/* STOG OPERACIJE */
 int Provjera(char znak1, char znak2)  // DOLAZI, STOG -> VRATI 0 ako mozes dodat na stog.
 {
 	if (znak1 == '(') return 0;
@@ -346,26 +361,30 @@ int PushTwo(Pok head, int el) {
 int ManageOperation(char operacija, int first, int second) {
 	int rez = 0;
 	switch (operacija) {
-		case '+':
-		{
-			rez = first + second;
-			break;
-		}
-		case '-':
-		{
-			rez = first - second;
-			break;
-		}
-		case '*':
-		{
-			rez = first * second;
-			break;
-		}
-		case '/':
-		{
-			rez = first / second;
-			break;
-		}
+	case '+':
+	{
+		rez = first + second;
+		break;
+	}
+	case '-':
+	{
+		rez = first - second;
+		break;
+	}
+	case '*':
+	{
+		rez = first * second;
+		break;
+	}
+	case '/':
+	{
+		rez = first / second;
+		break;
+	}
 	}
 	return rez;
+}
+int IsSymbol(char c)
+{
+	return (c >= 40 && c <= 47) ? 1 : 0;
 }
