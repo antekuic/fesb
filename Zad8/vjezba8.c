@@ -31,6 +31,7 @@ int MakeDir(Pok, char *);
 Pok FindDir(Pok, char *);
 int Ispis(Pok);
 int Ispis(Pok);
+int DeleteAll(Pok);
 
 int main() {
 	Pok root = NULL;
@@ -56,63 +57,66 @@ int main() {
 			scanf(" %d", &opcija);
 			switch (opcija)
 			{
-				case 1:
+			case 1:
+			{
+				// MAKE DIR
+				printf("\nUnesite naziv direktorija kojeg zelite dodat: ");
+				scanf("%s", name);
+				if (MakeDir(currentDir, name) == 0)
 				{
-					// MAKE DIR
-					printf("\nUnesite naziv direktorija kojeg zelite dodat: ");
-					scanf("%s", name);
-					if (MakeDir(currentDir, name) == 0)
-					{
-						printf("Datoteka dodana: %s%s", path, name);
-					}
-					break;
+					printf("Datoteka dodana: %s%s", path, name);
 				}
-				case 2:
+				break;
+			}
+			case 2:
+			{
+				// CHANGE DIR
+
+				printf("\nUnesite naziv direktorija na kojeg zelite pokazat: ");
+				scanf("%s", name);
+				if ((temp = FindDir(currentDir, name)) != NULL)
 				{
-					// CHANGE DIR
-					
-					printf("\nUnesite naziv direktorija na kojeg zelite pokazat: ");
-					scanf("%s", name);
-					if ((temp = FindDir(currentDir, name)) != NULL)
-					{
-						printf("Datoteka pronadena. Trenutna putanja: %s%s", path, name);
-						currentDir = temp;
-						strcat(path, temp->naziv);
-						strcat(path, "\\");
-					}
-					else {
-						printf("Datoteka nije pronadena.");
-					}
-					break;
+					printf("Datoteka pronadena. Trenutna putanja: %s%s", path, name);
+					currentDir = temp;
+					strcat(path, temp->naziv);
+					strcat(path, "\\");
 				}
-				case 3: {
-					// VRATI SE NAZAD
-					if (currentDir->PrevDir == NULL)
-					{
-						printf("Nalazite se u root-u!");
-					}
-					else {
-						path[strlen(path) - strlen(currentDir->naziv) - 1] = '\0';
-						currentDir = currentDir->PrevDir;
-					}
-					break;
+				else {
+					printf("Datoteka nije pronadena.");
 				}
-				case 4: {
-					// ISPISI SVE UNUTAR DIR
-					printf("\n");
-					printf("%s\n", currentDir->naziv);
-					printf("-");
-					Ispis(currentDir->FirstSub);
-					break;
-				}
-				default:
+				break;
+			}
+			case 3: {
+				// VRATI SE NAZAD
+				if (currentDir->PrevDir == NULL)
 				{
-					opcija = 5;
-					break;
+					printf("Nalazite se u root-u!");
 				}
+				else {
+					path[strlen(path) - strlen(currentDir->naziv) - 1] = '\0';
+					currentDir = currentDir->PrevDir;
+				}
+				break;
+			}
+			case 4: {
+				// ISPISI SVE UNUTAR DIR
+				printf("\n");
+				printf("%s\n", currentDir->naziv);
+				printf("-");
+				Ispis(currentDir->FirstSub);
+				break;
+			}
+			default:
+			{
+				opcija = 5;
+				break;
+			}
 			}
 		}
 	}
+
+	DeleteAll(root);
+	
 	return 0;
 }
 
@@ -120,7 +124,7 @@ int main() {
 int MakeDir(Pok root, char naziv[NAME_STRING]) { // ROOT OZNACAVA NADDIREKTORIJ I DODAJEMO DIREKTORIJ U PODDIREKTORIJ
 	if (root != NULL) {
 		Pok new = (Pok)malloc(sizeof(Direktoriji));
-		
+
 		if (new != NULL)
 		{
 			new->FirstSub = NULL;
@@ -160,7 +164,7 @@ int Ispis(Pok root)
 	if (root != NULL)
 	{
 		printf("%s", root->naziv);
-		
+
 		if (root->FirstSub != NULL)
 		{
 			printf("\\");
@@ -168,6 +172,19 @@ int Ispis(Pok root)
 		printf("\n");
 		printf("-");
 		Ispis(root->NextDir);
+	}
+	return -1;
+}
+
+/*BRISANJE*/
+int DeleteAll(Pok root) {
+
+	if (root != NULL)
+	{
+		DeleteAll(root->FirstSub);
+		DeleteAll(root->NextDir);
+		free(root);
+
 	}
 	return -1;
 }
